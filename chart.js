@@ -88,6 +88,29 @@ async function drawLineChart() {
             .attr("cy", d => yScale(yAccessor(d)))
             .attr("r", 3.25)
             .attr("fill", d => colorScale(colorAccessor(d)))
+
+        const line1 = bounds.append("line")
+            .attr("x1", xScale(dateParser("2019-04-18")))
+            .attr("x2", xScale(dateParser("2019-04-18")))
+            .attr("y1", 15)
+            .attr("y2", dimensions.boundedHeight)
+            .attr("stroke", "gray")
+            .attr("stroke-dasharray", "2px 4px")
+            .attr("stroke-width", 2);
+
+        const label1 = bounds.append("text")
+            .attr("y",  -5)
+            .attr("fill", "gray")
+            .style("font-size", "12px")
+            .style("text-anchor", "middle")
+            .append("tspan")
+              .attr("dy", "0em")
+              .text("Mueller report")
+              .attr("x", xScale(dateParser("2019-04-18")))
+            .append("tspan")
+              .attr("dy", "1em")
+              .text("made public")  
+              .attr("x", xScale(dateParser("2019-04-18")))
 }
 
 drawLineChart();
