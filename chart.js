@@ -1,10 +1,12 @@
 async function drawLineChart() {
     const impeachmentData = await d3.csv("https://raw.githubusercontent.com/DillonMurphy04/CopytheMastersData/main/impeachment.csv");
-    // const pollsData = await d3.csv("https://raw.githubusercontent.com/DillonMurphy04/CopytheMastersData/main/polls.csv");
+    const pollsData = await d3.csv("https://raw.githubusercontent.com/DillonMurphy04/CopytheMastersData/main/polls.csv");
   
     const yAccessor = d => +d.yes_estimate;
     const dateParser = d3.timeParse("%Y-%m-%d");
     const xAccessor = d => dateParser(d.modeldate);
+    const dateParser2 = d3.timeParse("%Y-%m-%d %H:%M:%S");
+    const xAccessor2 = d => dateParser2(d.modeldate);
 
     let dimensions = {
       width: window.innerWidth * 0.9,
@@ -55,9 +57,37 @@ async function drawLineChart() {
             .datum(data)
             .attr("d", lineGenerator)
             .attr("fill", "none")
-            .attr("stroke", party === "dem" ? "blue" : party === "rep" ? "red" : "black")
-            .attr("stroke-width", 2);
+            .attr("stroke", party === "dem" ? d3.rgb(56, 160, 232) : party === "rep" ? d3.rgb(232, 16, 23) : d3.rgb(0, 0, 0))
+            .attr("stroke-width", 2.75);
         }
+
+        const yAxisGenerator = d3.axisLeft()
+          .scale(yScale)
+
+        const yAxis = bounds.append("g")
+          .call(yAxisGenerator)
+
+        const xAxisGenerator = d3.axisBottom()
+          .scale(xScale)
+        
+        const xAxis = bounds.append("g")
+          .call(xAxisGenerator)
+            .style("transform", `translateY(${
+              dimensions.boundedHeight
+            }px)`)
+        
+        const colorAccessor = d => d.party
+          
+        const colorScale = d3.scaleOrdinal()
+          .domain(["dem", "rep", "ind"])
+          .range([d3.rgb(56, 160, 232, 0.4), d3.rgb(232, 16, 23, 0.4), d3.rgb(0, 0, 0, 0.4)])
+        
+        const dots = bounds.selectAll("circle").data(pollsData)
+        dots.join("circle")
+            .attr("cx", d => xScale(xAccessor2(d)))
+            .attr("cy", d => yScale(yAccessor(d)))
+            .attr("r", 3.25)
+            .attr("fill", d => colorScale(colorAccessor(d)))
 }
 
 drawLineChart();
