@@ -154,7 +154,7 @@ async function drawLineChart() {
     .attr("width", dimensions.boundedWidth)
     .attr("height", dimensions.boundedHeight)
     .on("mousemove", onMouseMove)
-    // .on("mouseleave", onMouseLeave)
+    .on("mouseleave", onMouseLeave)
   
   const tooltip = d3.select("#tooltip")
   function onMouseMove(event) {
@@ -167,11 +167,31 @@ async function drawLineChart() {
       getDistanceFromHoveredDate(a) - getDistanceFromHoveredDate(b)
     ))
     const closestDataPoint = impeachmentData[closestIndex]
+    const closestXValue = xAccessor(closestDataPoint)
+    const closestYValue = yAccessor(closestDataPoint)
+    const formatDate = d3.timeFormat("%B %A %-d, %Y")
+    tooltip.select("#date")
+      .text(formatDate(closestXValue))
+  
+    tooltip.select("#percent")
+      .text(closestYValue + "%")
+  
+    const x = xScale(closestXValue)
+      + dimensions.margin.left
+    const y = yScale(closestYValue)
+      + dimensions.margin.top
     
+    tooltip.style("transform", `translate(`
+      + `calc( -50% + ${x}px),`
+      + `calc(-100% + ${y}px)`
+      + `)`)
+  
+    tooltip.style("opacity", 1)
   }
-  // function onMouseLeave(){
-
-  // }
+  
+  function onMouseLeave(){
+    tooltip.style("opacity", 0)
+  }
 }
 
 drawLineChart();

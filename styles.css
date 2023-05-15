@@ -1,3 +1,7 @@
 .listening-rect {
     fill: transparent;
 }
+
+.tooltip {
+    opacity: 0;
+}
