@@ -148,6 +148,30 @@ async function drawLineChart() {
       .attr("dy", "1em")
       .text("inquiry")  
       .attr("x", xScale(dateParser("2019-09-24")))
+
+  const listeningRect = bounds.append("rect")
+    .attr("class", "listening-rect")
+    .attr("width", dimensions.boundedWidth)
+    .attr("height", dimensions.boundedHeight)
+    .on("mousemove", onMouseMove)
+    // .on("mouseleave", onMouseLeave)
+  
+  const tooltip = d3.select("#tooltip")
+  function onMouseMove(event) {
+    const mousePosition = d3.pointer(event, this)
+    const hoveredDate = xScale.invert(mousePosition[0])
+    const getDistanceFromHoveredDate = d => Math.abs(
+      xAccessor(d) - hoveredDate
+    )
+    const closestIndex = d3.scan(impeachmentData, (a, b) => (
+      getDistanceFromHoveredDate(a) - getDistanceFromHoveredDate(b)
+    ))
+    const closestDataPoint = impeachmentData[closestIndex]
+    
+  }
+  // function onMouseLeave(){
+
+  // }
 }
 
 drawLineChart();
