@@ -2,6 +2,17 @@
     fill: transparent;
 }
 
-.tooltip {
-    opacity: 0;
+.dem-tooltip {
+  color: blue;
+  font-size: 20px;
+}
+
+.rep-tooltip {
+  color: red;
+  font-size: 20px;
+}
+
+.ind-tooltip {
+  color: black;
+  font-size: 20px;
 }

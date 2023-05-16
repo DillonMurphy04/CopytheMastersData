@@ -155,42 +155,87 @@ async function drawLineChart() {
     .attr("height", dimensions.boundedHeight)
     .on("mousemove", onMouseMove)
     .on("mouseleave", onMouseLeave)
+
+  const tooltipLine = bounds.append("line")
+    .attr("class", "tooltip-line")
+    .attr("x1", 0)
+    .attr("y1", 0)
+    .attr("x2", 0)
+    .attr("y2", dimensions.boundedHeight)
+    .style("opacity", 0)
+    .style("stroke", "gray")
+    .style("stroke-dasharray", "2px 4px")
   
-  const tooltip = d3.select("#tooltip")
+  const tooltipDem = d3.select("#tooltip-dem");
+  const tooltipRep = d3.select("#tooltip-rep");
+  const tooltipInd = d3.select("#tooltip-ind");
+  const tooltipDate = d3.select("#tooltip-date")
+    .style("top", `${dimensions.boundedHeight}px`)
+
   function onMouseMove(event) {
     const mousePosition = d3.pointer(event, this)
     const hoveredDate = xScale.invert(mousePosition[0])
     const getDistanceFromHoveredDate = d => Math.abs(
       xAccessor(d) - hoveredDate
     )
-    const closestIndex = d3.scan(impeachmentData, (a, b) => (
-      getDistanceFromHoveredDate(a) - getDistanceFromHoveredDate(b)
-    ))
-    const closestDataPoint = impeachmentData[closestIndex]
-    const closestXValue = xAccessor(closestDataPoint)
-    const closestYValue = yAccessor(closestDataPoint)
-    const formatDate = d3.timeFormat("%B %A %-d, %Y")
-    tooltip.select("#date")
-      .text(formatDate(closestXValue))
-  
-    tooltip.select("#percent")
-      .text(closestYValue + "%")
-  
-    const x = xScale(closestXValue)
-      + dimensions.margin.left
-    const y = yScale(closestYValue)
-      + dimensions.margin.top
+
+    tooltipLine
+      .attr("x1", mousePosition[0])
+      .attr("x2", mousePosition[0])
+      .style("opacity", 1)
     
-    tooltip.style("transform", `translate(`
-      + `calc( -50% + ${x}px),`
-      + `calc(-100% + ${y}px)`
-      + `)`)
-  
-    tooltip.style("opacity", 1)
+    for (const [party, data] of groups) {
+      const closestIndex = d3.scan(data, (a, b) => (
+        getDistanceFromHoveredDate(a) - getDistanceFromHoveredDate(b)
+      ))
+      const closestDataPoint = data[closestIndex]
+      const closestXValue = xAccessor(closestDataPoint)
+      const closestYValue = yAccessor(closestDataPoint)
+      const formatDate = d3.timeFormat("%B %-d, %Y")
+
+      let tooltip;
+      if (party === "dem") {
+        tooltip = tooltipDem;
+      } else if (party === "rep") {
+        tooltip = tooltipRep;
+      } else {
+        tooltip = tooltipInd;
+      }
+    
+      tooltip.select(".tooltip-percent")
+        .text(closestYValue.toFixed(1) + "% " + party)
+        .style("fill", () => {
+          return party === "dem" ? "blue" : party === "rep" ? "red" : party === "ind" ? "green" : "black";
+        })
+    
+      const x = xScale(closestXValue)
+        + dimensions.margin.left
+      const y = yScale(closestYValue)
+        + dimensions.margin.top
+      
+      tooltipDate
+        .text(formatDate(closestXValue))
+        .style("opacity", 1)
+        .style("transform", `translate(`
+        + `${x}px,`
+        + `5px`
+        + `)`)
+
+      tooltip.style("transform", `translate(`
+        + `${x}px,`
+        + `${y}px`
+        + `)`)
+    
+      tooltip.style("opacity", 1)
+    }
   }
   
   function onMouseLeave(){
-    tooltip.style("opacity", 0)
+    tooltipDem.style("opacity", 0)
+    tooltipRep.style("opacity", 0)
+    tooltipInd.style("opacity", 0)
+    tooltipLine.style("opacity", 0)
+    tooltipDate.style("opacity", 0)
   }
 }
 
