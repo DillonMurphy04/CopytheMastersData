@@ -39,7 +39,7 @@ async function drawLineChart() {
       }px)`)
 
     const yScale = d3.scaleLinear()
-      .domain(d3.extent(impeachmentData, yAccessor))
+      .domain([0, 100])
       .range([dimensions.boundedHeight, 0])
 
     const xScale = d3.scaleTime()
@@ -63,9 +63,16 @@ async function drawLineChart() {
 
     const yAxisGenerator = d3.axisLeft()
       .scale(yScale)
+      .ticks(3)
+      .tickValues([0, 50, 100])
 
     const yAxis = bounds.append("g")
       .call(yAxisGenerator)
+      .style("stroke", "lightgray")
+      .style("font-size", "15px")
+
+    yAxis.select(".domain")
+      .style("display", "none");
 
     const xAxisGenerator = d3.axisBottom()
       .scale(xScale)
@@ -75,7 +82,41 @@ async function drawLineChart() {
         .style("transform", `translateY(${
           dimensions.boundedHeight
         }px)`)
+        .style("stroke", "lightgray")
+        .style("font-size", "15px")
     
+    const line50 = bounds.append("line")
+      .attr("x1", 0)
+      .attr("x2", dimensions.boundedWidth)
+      .attr("y1", yScale(50))
+      .attr("y2", yScale(50))
+      .attr("stroke", "lightgray")
+      .attr("stroke-width", 2);
+
+    const line100 = bounds.append("line")
+      .attr("x1", 0)
+      .attr("x2", dimensions.boundedWidth)
+      .attr("y1", yScale(100))
+      .attr("y2", yScale(100))
+      .attr("stroke", "lightgray")
+      .attr("stroke-width", 2);
+
+    const [minDate, maxDate] = d3.extent(impeachmentData, xAccessor);
+    const monthTicks = d3.timeMonths(minDate, maxDate)
+      .filter((d, i) => i !== 0);
+
+    bounds.selectAll(".vertical-line")
+      .data(monthTicks)
+      .enter()
+      .append("line")
+      .attr("class", "vertical-line")
+      .attr("x1", d => xScale(d))
+      .attr("x2", d => xScale(d))
+      .attr("y1", -10)
+      .attr("y2", dimensions.boundedHeight)
+      .attr("stroke", "lightgray")
+      .attr("stroke-width", 1)
+ 
     const colorAccessor = d => d.party
       
     const colorScale = d3.scaleOrdinal()
@@ -204,9 +245,10 @@ async function drawLineChart() {
     
       tooltip.select(".tooltip-percent")
         .text(closestYValue.toFixed(1) + "% " + party)
-        .style("fill", () => {
-          return party === "dem" ? "blue" : party === "rep" ? "red" : party === "ind" ? "green" : "black";
-        })
+
+      tooltip.style("color", () => {
+        return party === "dem" ? "blue" : party === "rep" ? "red" : "black";
+      })
     
       const x = xScale(closestXValue)
         + dimensions.margin.left
@@ -218,7 +260,7 @@ async function drawLineChart() {
         .style("opacity", 1)
         .style("transform", `translate(`
         + `${x}px,`
-        + `5px`
+        + `15px`
         + `)`)
 
       tooltip.style("transform", `translate(`

@@ -3,16 +3,22 @@
 }
 
 .dem-tooltip {
-  color: blue;
+  position: absolute;
+  top: 0;
+  left: 0;
   font-size: 20px;
 }
 
 .rep-tooltip {
-  color: red;
+  position: absolute;
+  top: 0;
+  left: 0;
   font-size: 20px;
 }
 
 .ind-tooltip {
-  color: black;
+  position: absolute;
+  top: 0;
+  left: 0;
   font-size: 20px;
 }
