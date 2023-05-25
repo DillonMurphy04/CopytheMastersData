@@ -1,0 +1,43 @@
+---
+title: "Copy the Masters"
+subtitle: "D3 version in RMarkdown!"
+output-format: html
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, 
+                      message = FALSE,
+                      warning = FALSE
+                      )
+```
+
+```{r set-up}
+library(tidyverse)
+library(r2d3)
+```
+
+## Data
+
+```{r}
+impeachmentData <- read_csv("https://raw.githubusercontent.com/DillonMurphy04/CopytheMastersData/main/impeachment.csv")
+pollsData       <- read_csv("https://raw.githubusercontent.com/DillonMurphy04/CopytheMastersData/main/polls.csv")
+```
+
+## Small test (r2d3)
+
+```{r}
+impeachmentData_dem <- impeachmentData |> 
+  filter(party == "dem")
+
+r2d3(data = impeachmentData_dem, 
+     script = "chart-smalltest.js",
+     d3_version = 4)
+```
+
+## Large test (r2d3)
+
+```{r}
+r2d3(data = impeachmentData, 
+     script = "chart-largetest.js",
+     d3_version = 4)
+```
