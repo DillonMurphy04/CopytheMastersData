@@ -1,39 +1,5 @@
----
-title: "Copy the Masters"
-subtitle: "D3 version in Quarto!"
-format: 
-  html:
-    code-fold: true
-    embed-resources: true
-editor: source
-execute: 
-  warning: false
-  message: false
----
+// !preview r2d3 data = tibble(party = c("dem", "dem", "dem", "dem", "dem", "dem", "rep", "rep", "rep", "rep", "rep", "rep"), modeldate = c("2020-03-12", "2020-02-11", "2020-02-10", "2020-02-09", "2020-02-08", "2020-02-07", "2020-03-12", "2020-02-11", "2020-02-10", "2020-02-09", "2020-02-08", "2020-02-07"), yes_estimate = c(84.4, 84.4, 85.2, 85.2, 84.1, 84.1, 54.4, 54.4, 55.2, 55.2, 54.1, 54.1))
 
-```{r set-up}
-library(tidyverse)
-library(r2d3)
-```
-
-## Data
-
-```{r}
-impeachmentData <- read_csv("https://raw.githubusercontent.com/DillonMurphy04/CopytheMastersData/main/impeachment.csv")
-pollsData       <- read_csv("https://raw.githubusercontent.com/DillonMurphy04/CopytheMastersData/main/polls.csv")
-```
-
-## d3 script
-// Not sure how to add multiple datasets
-// d3.groups only in d3 version 7, instead trying d3.rollup (I believe it is in version 6??)
-// added basic interactivity for just the line
-```{r}
-r2d3(data = impeachmentData , script = "full-test.js", d3_version = 6)
-```
-
-## d3 chunk
-
-```{d3, d3_version = 6, data = impeachmentData}
 // 1. ACCESS DATA
     const yAccessor = d => d.yes_estimate
     const dateParser = d3.timeParse("%Y-%m-%d")
@@ -183,5 +149,62 @@ r2d3(data = impeachmentData , script = "full-test.js", d3_version = 6)
       .attr("y2", dimensions.boundedHeight)
       .attr("stroke", "lightgray")
       .attr("stroke-width", 1)
-```
+      
+    function addLineWithTest(date, text1, text2) {
+      const line = svg.append("line")
+        .attr("x1", xScale(dateParser(date)))
+        .attr("x2", xScale(dateParser(date)))
+        .attr("y1", 15)
+        .attr("y2", dimensions.boundedHeight)
+        .attr("stroke", "gray")
+        .attr("stroke-dasharray", "2px 4px")
+        .attr("stroke-width", 2);
 
+      const label = svg.append("text")
+        .attr("y",  5)
+        .attr("fill", "gray")
+        .style("font-size", "12px")
+        .style("text-anchor", "middle")
+        .append("tspan")
+          .attr("dy", "0em")
+          .text(text1)
+          .attr("x", xScale(dateParser(date)))
+        .append("tspan")
+          .attr("dy", "1em")
+          .text(text2)  
+          .attr("x", xScale(dateParser(date)))
+    }
+    addLineWithTest("2019-04-18", "Mueller report", "made public")
+    addLineWithTest("2019-07-24", "Mueller testified", "before Congress")
+    addLineWithTest("2019-12-18", "House voted to", "impeach Trump")
+    addLineWithTest("2020-02-05", "Senate voted to", "acquit Trump")
+    
+    const listeningRect = svg.append("rect")
+      .attr("class", "listening-rect")
+      .attr("width", dimensions.boundedWidth)
+      .attr("height", dimensions.boundedHeight)
+      .on("mousemove", onMouseMove)
+      .on("mouseleave", onMouseLeave)
+      
+  const tooltipLine = svg.append("line")
+    .attr("class", "tooltip-line")
+    .attr("x1", 0)
+    .attr("y1", 0)
+    .attr("x2", 0)
+    .attr("y2", dimensions.boundedHeight)
+    .style("opacity", 0)
+    .style("stroke", "gray")
+    .style("stroke-dasharray", "2px 4px")
+    
+  function onMouseMove(event) {
+      const mousePosition = d3.pointer(event, this)
+      tooltipLine
+        .attr("x1", mousePosition[0])
+        .attr("x2", mousePosition[0])
+        .style("opacity", 1)
+    }
+    
+  function onMouseLeave(){
+    tooltipLine.style("opacity", 0)
+
+  }
